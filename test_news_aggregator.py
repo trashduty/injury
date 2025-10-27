@@ -14,14 +14,18 @@ import socket
 import config
 import news_aggregator
 
+# Configure logging for tests
+news_aggregator.configure_logging()
+
 
 class TestConfig(unittest.TestCase):
     """Test cases for configuration module."""
     
     def setUp(self):
         """Set up test fixtures."""
-        # Save original config
-        self.original_feeds = config.RSS_FEEDS.copy()
+        # Save original config using deep copy for proper isolation
+        import copy
+        self.original_feeds = copy.deepcopy(config.RSS_FEEDS)
     
     def tearDown(self):
         """Clean up after tests."""

@@ -17,12 +17,21 @@ import socket
 import config
 
 
-# Set up logging
-logging.basicConfig(
-    level=config.LOG_LEVEL,
-    format=config.LOG_FORMAT
-)
+# Set up module logger (application should configure logging)
 logger = logging.getLogger(__name__)
+
+
+def configure_logging():
+    """
+    Configure logging for the news aggregator.
+    
+    Call this function if you want to use the default logging configuration.
+    Otherwise, configure logging in your application before using this module.
+    """
+    logging.basicConfig(
+        level=config.LOG_LEVEL,
+        format=config.LOG_FORMAT
+    )
 
 
 class RSSFeedHandler:
@@ -330,6 +339,9 @@ class RSSFeedHandler:
 
 def main():
     """Main function for testing the news aggregator."""
+    # Configure logging for the main function
+    configure_logging()
+    
     logger.info("Starting News Aggregator")
     
     handler = RSSFeedHandler()

@@ -39,7 +39,7 @@ MAX_ITEMS_PER_FEED = 50
 CACHE_DURATION = 86400  # 24 hours in seconds
 
 
-def add_rss_feed(url: str, name: str, enabled: bool = True, priority: int = 1) -> None:
+def add_rss_feed(url: str, name: str, enabled: bool = True, priority: int = 2) -> None:
     """
     Add a new RSS feed to the configuration.
     
@@ -47,7 +47,7 @@ def add_rss_feed(url: str, name: str, enabled: bool = True, priority: int = 1) -
         url: The URL of the RSS feed
         name: A friendly name for the feed
         enabled: Whether the feed is enabled (default: True)
-        priority: Priority level (1=high, 2=normal, 3=low)
+        priority: Priority level (1=high, 2=normal, 3=low, default: 2)
     """
     feed_config = {
         'url': url,
