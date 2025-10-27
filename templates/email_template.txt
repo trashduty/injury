@@ -1,0 +1,23 @@
+NEWS AGGREGATOR REPORT
+{separator}
+
+Report Date: {report_date}
+Total Items: {total_items}
+Feeds Processed: {feeds_count}
+
+ATTACHED FILES
+{separator}
+• Markdown Report (news_report.md)
+• CSV Report (news_report.csv)
+
+LATEST HEADLINES
+{separator}
+
+{items_text}
+
+{more_items_message}
+
+{separator}
+This is an automated report from the News Aggregator System.
+Generated on {generation_time}
+{separator}

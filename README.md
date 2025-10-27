@@ -1,6 +1,6 @@
 # News Aggregation System
 
-A robust news aggregation system with RSS feed support, designed to fetch, parse, and manage multiple RSS feeds with proper error handling and caching.
+A robust news aggregation system with RSS feed support, email delivery, and dual-format reporting (Markdown and CSV). Designed to fetch, parse, and manage multiple RSS feeds with proper error handling, caching, and automated email notifications.
 
 ## Features
 
@@ -11,6 +11,10 @@ A robust news aggregation system with RSS feed support, designed to fetch, parse
 - **Multiple Feed Support**: Manage multiple RSS feeds simultaneously
 - **Logging**: Detailed logging for debugging and monitoring
 - **Flexible Configuration**: Easy-to-modify configuration system
+- **Dual-Format Reports**: Generate reports in both Markdown and CSV formats
+- **Email Delivery**: Send automated email notifications with report attachments
+- **HTML Email Templates**: Beautiful HTML email templates with plain text fallback
+- **Secure Configuration**: Email credentials stored securely via environment variables
 
 ## Installation
 
@@ -46,6 +50,143 @@ Or run the included main function:
 
 ```bash
 python news_aggregator.py
+```
+
+### Running with Report Generation and Email Delivery
+
+The system can automatically generate reports and send them via email:
+
+```bash
+# Set environment variables for email configuration
+export EMAIL_ENABLED=true
+export EMAIL_HOST=smtp.gmail.com
+export EMAIL_PORT=587
+export EMAIL_USERNAME=your-email@gmail.com
+export EMAIL_PASSWORD=your-app-password
+export EMAIL_TO=recipient@email.com
+
+# Run the aggregator
+python news_aggregator.py
+```
+
+Or test with the demo script using mock data:
+
+```bash
+python demo.py
+```
+
+## Report Generation
+
+The system can generate reports in multiple formats:
+
+### Markdown Reports
+
+Markdown reports include:
+- Report metadata (date, total items, feeds processed)
+- Formatted news items with titles, links, sources, and descriptions
+- Proper markdown formatting for easy reading
+
+### CSV Reports
+
+CSV reports include:
+- Structured data with columns: title, link, feed_name, pubDate, description, guid
+- Compatible with Excel, Google Sheets, and data analysis tools
+- Easy to import into databases
+
+### Using Report Generation Programmatically
+
+```python
+from news_aggregator import RSSFeedHandler
+from report_generator import ReportGenerator
+
+# Fetch news items
+handler = RSSFeedHandler()
+items = handler.get_all_feeds()
+
+# Generate reports
+report_gen = ReportGenerator()
+metadata = report_gen.get_report_metadata(items)
+generated_files = report_gen.generate_all_formats(items, metadata)
+
+print(f"Generated reports:")
+for format_name, filepath in generated_files.items():
+    print(f"  - {format_name}: {filepath}")
+```
+
+## Email Delivery
+
+The system supports automated email delivery with attachments.
+
+### Configuration
+
+Email delivery is configured via environment variables (recommended for security):
+
+```bash
+# Required settings
+export EMAIL_ENABLED=true
+export EMAIL_HOST=smtp.gmail.com          # SMTP server
+export EMAIL_PORT=587                      # SMTP port
+export EMAIL_USERNAME=your-email@gmail.com # Your email address
+export EMAIL_PASSWORD=your-app-password    # App-specific password
+export EMAIL_TO=recipient@email.com        # Recipient email
+
+# Optional settings
+export EMAIL_FROM=your-email@gmail.com     # From address (defaults to EMAIL_USERNAME)
+export EMAIL_USE_TLS=true                  # Use TLS (default: true)
+export EMAIL_USE_SSL=false                 # Use SSL (default: false)
+```
+
+### GitHub Secrets Configuration
+
+For GitHub Actions, store credentials as secrets:
+
+1. Go to your repository Settings → Secrets and variables → Actions
+2. Add the following secrets:
+   - `EMAIL_HOST`: smtp.gmail.com
+   - `EMAIL_PORT`: 587
+   - `EMAIL_USERNAME`: your-email@gmail.com
+   - `EMAIL_PASSWORD`: your app-specific password
+   - `EMAIL_TO`: recipient@email.com
+   - `EMAIL_ENABLED`: true
+
+### Gmail App Passwords
+
+For Gmail accounts:
+
+1. Enable 2-Factor Authentication on your Google account
+2. Go to Google Account → Security → 2-Step Verification → App passwords
+3. Generate a new app password for "Mail"
+4. Use this app password as `EMAIL_PASSWORD`
+
+### Email Features
+
+- **HTML Email Body**: Beautiful, responsive HTML email template
+- **Plain Text Fallback**: Plain text version for email clients that don't support HTML
+- **Attachments**: Both Markdown and CSV reports attached automatically
+- **Summary**: Email body includes a summary of the latest headlines
+- **Customizable Templates**: Edit templates in `templates/` directory
+
+### Using Email Delivery Programmatically
+
+```python
+from email_delivery import EmailDelivery
+from report_generator import ReportGenerator
+
+# Generate reports
+report_gen = ReportGenerator()
+items = [...] # Your feed items
+metadata = report_gen.get_report_metadata(items)
+generated_files = report_gen.generate_all_formats(items, metadata)
+
+# Send email
+email_handler = EmailDelivery()
+attachments = list(generated_files.values())
+success = email_handler.send_email(items, metadata, attachments)
+
+if success:
+    print("Email sent successfully!")
+else:
+    print("Failed to send email")
 ```
 
 ### Configuration
@@ -165,6 +306,43 @@ LOG_LEVEL = logging.INFO
 
 # Log format
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+```
+
+### Email Configuration
+
+```python
+# Email settings (retrieved from environment variables)
+EMAIL_CONFIG = {
+    'enabled': os.environ.get('EMAIL_ENABLED', 'false').lower() == 'true',
+    'host': os.environ.get('EMAIL_HOST', 'smtp.gmail.com'),
+    'port': int(os.environ.get('EMAIL_PORT', '587')),
+    'username': os.environ.get('EMAIL_USERNAME', ''),
+    'password': os.environ.get('EMAIL_PASSWORD', ''),
+    'to_email': os.environ.get('EMAIL_TO', ''),
+    'use_tls': os.environ.get('EMAIL_USE_TLS', 'true').lower() == 'true',
+    'use_ssl': os.environ.get('EMAIL_USE_SSL', 'false').lower() == 'true',
+}
+```
+
+### Output Configuration
+
+```python
+# Output format settings
+OUTPUT_CONFIG = {
+    'formats': ['markdown', 'csv'],  # Supported formats
+    'output_directory': os.environ.get('OUTPUT_DIR', 'reports'),
+    'filename_template': 'news_report_{timestamp}',
+    'include_timestamp': True,
+    'date_format': '%Y-%m-%d_%H-%M-%S',
+}
+
+# Email template settings
+EMAIL_TEMPLATE_CONFIG = {
+    'html_template': 'templates/email_template.html',
+    'text_template': 'templates/email_template.txt',
+    'subject_template': 'News Aggregator Report - {date}',
+    'max_items_in_summary': 10,  # Maximum items to show in email body
+}
 ```
 
 ## API Reference
