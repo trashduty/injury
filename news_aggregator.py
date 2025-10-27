@@ -17,6 +17,7 @@ import socket
 import config
 from report_generator import ReportGenerator
 from email_delivery import EmailDelivery
+from web_scraper import WebScraper
 
 
 # Set up module logger (application should configure logging)
@@ -294,6 +295,15 @@ class RSSFeedHandler:
             for item in items:
                 item['feed_name'] = feed_config.get('name', feed_config['url'])
             all_items.extend(items)
+        
+        # Add web scraped injury reports
+        try:
+            scraper = WebScraper()
+            injury_items = scraper.scrape_covers_injuries()
+            all_items.extend(injury_items)
+            logger.info(f"Added {len(injury_items)} injury reports from web scraping")
+        except Exception as e:
+            logger.error(f"Error scraping injury reports: {str(e)}")
         
         logger.info(f"Retrieved {len(all_items)} total items from all feeds")
         return all_items

@@ -20,6 +20,18 @@ RSS_FEEDS: List[Dict[str, Any]] = [
         'name': 'Custom RSS Feed',
         'enabled': True,
         'priority': 1
+    },
+    {
+        'url': 'https://www.espn.com/espn/rss/ncf/news',
+        'name': 'ESPN NCAAF',
+        'enabled': True,
+        'priority': 1
+    },
+    {
+        'url': 'https://www.cbssports.com/rss/collegefootball',
+        'name': 'CBS Sports NCAAF',
+        'enabled': True,
+        'priority': 1
     }
 ]
 
@@ -38,6 +50,22 @@ RETRY_DELAY = 5  # seconds
 # Feed content settings
 MAX_ITEMS_PER_FEED = 50
 CACHE_DURATION = 86400  # 24 hours in seconds
+
+# Web scraping configuration
+WEB_SCRAPING_CONFIG = {
+    'covers_injury_url': 'https://www.covers.com/sport/football/ncaaf/injuries',
+    'ourlads_depth_chart_url': 'https://www.ourlads.com/ncaa-football-depth-charts/',
+    'rate_limit_delay': 2,  # seconds between requests
+    'user_agent': 'NewsAggregator/1.0 (Educational Purpose)',
+    'timeout': 30,
+    'max_retries': 3,
+}
+
+# Depth chart configuration
+DEPTH_CHART_CONFIG = {
+    'cache_duration': 86400,  # 24 hours
+    'enabled': True,
+}
 
 # Email Configuration (retrieved from environment variables/GitHub Secrets)
 EMAIL_CONFIG = {
