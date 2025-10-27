@@ -2,10 +2,11 @@
 Configuration module for the news aggregation system.
 
 This module contains configuration settings for RSS feeds,
-refresh intervals, and other system parameters.
+refresh intervals, email delivery, and other system parameters.
 """
 
 import logging
+import os
 from typing import List, Dict, Any
 
 # Logging configuration
@@ -37,6 +38,36 @@ RETRY_DELAY = 5  # seconds
 # Feed content settings
 MAX_ITEMS_PER_FEED = 50
 CACHE_DURATION = 86400  # 24 hours in seconds
+
+# Email Configuration (retrieved from environment variables/GitHub Secrets)
+EMAIL_CONFIG = {
+    'enabled': os.environ.get('EMAIL_ENABLED', 'false').lower() == 'true',
+    'host': os.environ.get('EMAIL_HOST', 'smtp.gmail.com'),
+    'port': int(os.environ.get('EMAIL_PORT', '587')),
+    'username': os.environ.get('EMAIL_USERNAME', ''),
+    'password': os.environ.get('EMAIL_PASSWORD', ''),
+    'from_email': os.environ.get('EMAIL_FROM', os.environ.get('EMAIL_USERNAME', '')),
+    'to_email': os.environ.get('EMAIL_TO', ''),
+    'use_tls': os.environ.get('EMAIL_USE_TLS', 'true').lower() == 'true',
+    'use_ssl': os.environ.get('EMAIL_USE_SSL', 'false').lower() == 'true',
+}
+
+# Output Format Configuration
+OUTPUT_CONFIG = {
+    'formats': ['markdown', 'csv'],  # Supported formats
+    'output_directory': os.environ.get('OUTPUT_DIR', 'reports'),
+    'filename_template': 'news_report_{timestamp}',  # {timestamp} will be replaced
+    'include_timestamp': True,
+    'date_format': '%Y-%m-%d_%H-%M-%S',
+}
+
+# Email Template Configuration
+EMAIL_TEMPLATE_CONFIG = {
+    'html_template': 'templates/email_template.html',
+    'text_template': 'templates/email_template.txt',
+    'subject_template': 'News Aggregator Report - {date}',
+    'max_items_in_summary': 10,  # Maximum items to show in email body
+}
 
 
 def add_rss_feed(url: str, name: str, enabled: bool = True, priority: int = 2) -> None:

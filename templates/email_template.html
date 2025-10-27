@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Aggregator Report</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }}
+        .container {{
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }}
+        h1 {{
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }}
+        h2 {{
+            color: #34495e;
+            margin-top: 30px;
+        }}
+        .summary {{
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }}
+        .summary p {{
+            margin: 5px 0;
+        }}
+        .item {{
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            background-color: #f8f9fa;
+        }}
+        .item h3 {{
+            margin-top: 0;
+            color: #2980b9;
+        }}
+        .item a {{
+            color: #3498db;
+            text-decoration: none;
+        }}
+        .item a:hover {{
+            text-decoration: underline;
+        }}
+        .meta {{
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }}
+        .description {{
+            margin: 10px 0;
+            color: #555;
+        }}
+        .footer {{
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }}
+        .attachments {{
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }}
+        .attachments p {{
+            margin: 5px 0;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📰 News Aggregator Report</h1>
+        
+        <div class="summary">
+            <p><strong>Report Date:</strong> {report_date}</p>
+            <p><strong>Total Items:</strong> {total_items}</p>
+            <p><strong>Feeds Processed:</strong> {feeds_count}</p>
+        </div>
+
+        <div class="attachments">
+            <p><strong>📎 Attached Files:</strong></p>
+            <p>• Markdown Report (news_report.md)</p>
+            <p>• CSV Report (news_report.csv)</p>
+        </div>
+
+        <h2>Latest Headlines</h2>
+        
+        {items_html}
+
+        {more_items_message}
+
+        <div class="footer">
+            <p>This is an automated report from the News Aggregator System.</p>
+            <p>Generated on {generation_time}</p>
+        </div>
+    </div>
+</body>
+</html>

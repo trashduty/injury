@@ -15,6 +15,8 @@ from urllib.error import URLError, HTTPError
 import socket
 
 import config
+from report_generator import ReportGenerator
+from email_delivery import EmailDelivery
 
 
 # Set up module logger (application should configure logging)
@@ -363,6 +365,33 @@ def main():
     print(f"Total feeds: {status['total_feeds']}")
     print(f"Enabled feeds: {status['enabled_feeds']}")
     print(f"Cached feeds: {status['cached_feeds']}")
+    
+    # Generate reports if items were fetched
+    if items:
+        print("\n\nGenerating reports...")
+        report_gen = ReportGenerator()
+        metadata = report_gen.get_report_metadata(items)
+        generated_files = report_gen.generate_all_formats(items, metadata)
+        
+        print(f"Generated reports:")
+        for format_name, filepath in generated_files.items():
+            print(f"  - {format_name}: {filepath}")
+        
+        # Send email if configured
+        if config.EMAIL_CONFIG.get('enabled'):
+            print("\n\nSending email...")
+            email_handler = EmailDelivery()
+            attachments = list(generated_files.values())
+            success = email_handler.send_email(items, metadata, attachments)
+            
+            if success:
+                print("Email sent successfully!")
+            else:
+                print("Failed to send email. Check logs for details.")
+        else:
+            print("\n\nEmail delivery is disabled. Set EMAIL_ENABLED=true to enable.")
+    else:
+        print("\n\nNo items fetched, skipping report generation and email delivery.")
 
 
 if __name__ == '__main__':
