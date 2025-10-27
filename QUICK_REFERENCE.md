@@ -149,7 +149,7 @@ injury/
 ├── news_aggregator.py          # Main aggregator
 ├── report_generator.py         # Report generation
 ├── email_delivery.py           # Email sending
-├── web_scraper.py              # Web scraping & depth charts
+├── web_scraper.py              # Web scraping and depth charts
 ├── demo.py                     # Demo with mock data
 ├── test_news_aggregator.py     # RSS feed tests
 ├── test_email_reports.py       # Email tests
@@ -180,7 +180,7 @@ injury/
 - ✅ Secure credential handling
 - ✅ GitHub Actions ready
 - ✅ Comprehensive error handling
-- ✅ Full test coverage (63 tests)
+- ✅ Full test coverage (63/63 tests passing)
 
 ## Documentation
 
@@ -223,12 +223,13 @@ injury/
 - Ourlads.com: Depth charts
 
 ### CSV Output Format
-- Team name
-- Player name
-- Position (from depth chart)
-- News/injury update
-- Source
-- Date
-- Description
-- Link
-- GUID
+The CSV report includes the following fields in order:
+- `team` - Team name
+- `player` - Player name
+- `position` - Player position (from depth chart)
+- `title` - News headline or injury update
+- `feed_name` - Source of the information
+- `pubDate` - Publication date
+- `description` - Full description or injury details
+- `link` - URL to full article
+- `guid` - Unique identifier
