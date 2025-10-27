@@ -44,6 +44,8 @@ class NewsAggregator:
         """
         try:
             logger.info(f"Fetching feed: {feed_info['name']}")
+            # Note: feedparser doesn't support timeout parameter directly
+            # It uses urllib internally which has system-level timeout defaults
             feed = feedparser.parse(feed_info['url'])
             
             if feed.bozo:

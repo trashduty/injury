@@ -31,7 +31,7 @@ RSS_FEEDS = [
 ]
 
 # Rate Limiting
-REQUEST_TIMEOUT = 10  # seconds
+REQUEST_TIMEOUT = 10  # seconds (for future use with direct HTTP requests)
 REQUEST_DELAY = 2  # seconds between requests
 
 # Logging Configuration
