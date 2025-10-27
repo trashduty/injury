@@ -1,0 +1,63 @@
+name: Football News Aggregator with Email Delivery
+
+on:
+  # Run on schedule
+  schedule:
+    # Saturday at 11:30 PM UTC (23:30)
+    - cron: '30 23 * * 6'
+    # Sunday at 7:00 AM UTC (07:00)
+    - cron: '0 7 * * 0'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  aggregate-and-notify:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Run News Aggregator
+        env:
+          # Email configuration from GitHub Secrets
+          EMAIL_ENABLED: true
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_USE_TLS: true
+        run: |
+          python news_aggregator.py
+      
+      - name: Upload Reports as Artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: news-reports
+          path: reports/
+          retention-days: 7
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Football News Aggregator Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d "reports" ]; then
+            echo "✅ Reports generated successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Generated files:" >> $GITHUB_STEP_SUMMARY
+            ls -lh reports/ >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ No reports generated" >> $GITHUB_STEP_SUMMARY
+          fi
