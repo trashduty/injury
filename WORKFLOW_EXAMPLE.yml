@@ -1,0 +1,72 @@
+# Example GitHub Actions Workflow
+# 
+# This workflow demonstrates how to use the news aggregator with email delivery
+# Save this as .github/workflows/news-aggregator.yml in your repository
+#
+# To use this workflow:
+# 1. Add the required secrets to your repository (see README.md for details)
+# 2. Adjust the schedule to your preferred frequency
+# 3. Commit this file to your repository
+
+name: News Aggregator with Email Delivery
+
+on:
+  # Run on a schedule (e.g., daily at 9 AM UTC)
+  schedule:
+    - cron: '0 9 * * *'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+  
+  # Run on push to main (for testing)
+  push:
+    branches:
+      - main
+
+jobs:
+  aggregate-and-notify:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Run News Aggregator
+        env:
+          # Email configuration from GitHub Secrets
+          EMAIL_ENABLED: true
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_USE_TLS: true
+        run: |
+          python news_aggregator.py
+      
+      - name: Upload Reports as Artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: news-reports
+          path: reports/
+          retention-days: 7
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## News Aggregator Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d "reports" ]; then
+            echo "✅ Reports generated successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Generated files:" >> $GITHUB_STEP_SUMMARY
+            ls -lh reports/ >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ No reports generated" >> $GITHUB_STEP_SUMMARY
+          fi
