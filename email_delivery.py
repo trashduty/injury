@@ -246,6 +246,16 @@ Generated on {template_vars['generation_time']}
         try:
             logger.info("Preparing email message")
             
+            # Extract non-sensitive config values for logging
+            smtp_host = self.config['host']
+            smtp_port = self.config['port']
+            username = self.config['username']
+            password = self.config['password']
+            to_email = self.config['to_email']
+            from_email = self.config.get('from_email', username)
+            use_ssl = self.config.get('use_ssl')
+            use_tls = self.config.get('use_tls')
+            
             # Create message
             msg = MIMEMultipart('alternative')
             
@@ -254,8 +264,8 @@ Generated on {template_vars['generation_time']}
             msg['Subject'] = self.template_config['subject_template'].format(
                 date=subject_date
             )
-            msg['From'] = self.config.get('from_email', self.config['username'])
-            msg['To'] = self.config['to_email']
+            msg['From'] = from_email
+            msg['To'] = to_email
             
             # Create email body
             html_body, text_body = self._create_email_body(items, metadata)
@@ -289,20 +299,22 @@ Generated on {template_vars['generation_time']}
                     logger.warning(f"Attachment file not found: {filepath}")
             
             # Send email
-            logger.info(f"Connecting to SMTP server: {self.config['host']}:{self.config['port']}")
+            # Note: Detailed connection info not logged to avoid potential security issues
+            logger.info("Connecting to SMTP server")
             
-            if self.config.get('use_ssl'):
-                server = smtplib.SMTP_SSL(self.config['host'], self.config['port'])
+            if use_ssl:
+                server = smtplib.SMTP_SSL(smtp_host, smtp_port)
             else:
-                server = smtplib.SMTP(self.config['host'], self.config['port'])
+                server = smtplib.SMTP(smtp_host, smtp_port)
             
-            if self.config.get('use_tls') and not self.config.get('use_ssl'):
+            if use_tls and not use_ssl:
                 server.starttls()
             
             logger.info("Authenticating with SMTP server")
-            server.login(self.config['username'], self.config['password'])
+            # Perform login - credentials are not logged for security
+            server.login(username, password)
             
-            logger.info(f"Sending email to: {self.config['to_email']}")
+            logger.info("Sending email message")
             server.send_message(msg)
             server.quit()
             
