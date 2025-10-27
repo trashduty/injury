@@ -62,6 +62,7 @@ python -m unittest discover -v
 ```bash
 python -m unittest test_email_reports -v
 python -m unittest test_news_aggregator -v
+python -m unittest test_web_scraper -v
 ```
 
 ### Test Report Generation
@@ -148,9 +149,11 @@ injury/
 ├── news_aggregator.py          # Main aggregator
 ├── report_generator.py         # Report generation
 ├── email_delivery.py           # Email sending
+├── web_scraper.py              # Web scraping & depth charts
 ├── demo.py                     # Demo with mock data
-├── test_news_aggregator.py     # Original tests
-├── test_email_reports.py       # New feature tests
+├── test_news_aggregator.py     # RSS feed tests
+├── test_email_reports.py       # Email tests
+├── test_web_scraper.py         # Web scraping tests
 ├── templates/
 │   ├── email_template.html     # HTML email template
 │   └── email_template.txt      # Plain text template
@@ -165,15 +168,19 @@ injury/
 
 ## Key Features
 
-- ✅ RSS feed aggregation
+- ✅ RSS feed aggregation (ESPN, CBS Sports, Custom feeds)
+- ✅ Web scraping (Covers.com injury reports)
+- ✅ Depth chart integration (Ourlads.com)
+- ✅ Enhanced CSV with Team/Player/Position data
 - ✅ Markdown report generation
 - ✅ CSV report generation
 - ✅ Email delivery with attachments
 - ✅ HTML and plain text emails
+- ✅ Rate limiting for web scraping
 - ✅ Secure credential handling
 - ✅ GitHub Actions ready
 - ✅ Comprehensive error handling
-- ✅ Full test coverage
+- ✅ Full test coverage (63 tests)
 
 ## Documentation
 
@@ -200,7 +207,28 @@ injury/
 ## Version
 
 - **Implementation Date**: 2025-10-27
-- **Tests**: 44/44 passing
-- **Security**: CodeQL clean (0 alerts)
+- **Tests**: 63/63 passing
 - **Python**: 3.11+
 - **Dependencies**: Standard library only
+
+## News Sources
+
+### RSS Feeds
+- ESPN NCAAF: https://www.espn.com/espn/rss/ncf/news
+- CBS Sports NCAAF: https://www.cbssports.com/rss/collegefootball
+- Custom RSS Feed: https://rss.app/feeds/3j65xfmG9wfdJGvl.xml
+
+### Web Scraping
+- Covers.com: Injury reports
+- Ourlads.com: Depth charts
+
+### CSV Output Format
+- Team name
+- Player name
+- Position (from depth chart)
+- News/injury update
+- Source
+- Date
+- Description
+- Link
+- GUID
