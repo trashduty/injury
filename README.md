@@ -27,12 +27,29 @@ A robust news aggregation system with RSS feed support, web scraping, depth char
 
 ## Installation
 
-No external dependencies are required beyond Python's standard library. Simply clone the repository:
+### Basic Installation (News Aggregator)
+
+No external dependencies are required for the basic news aggregator beyond Python's standard library. Simply clone the repository:
 
 ```bash
 git clone https://github.com/trashduty/injury.git
 cd injury
 ```
+
+### Full Installation (with Depth Chart Scraper)
+
+To use the depth chart scraper, install the required dependencies:
+
+```bash
+git clone https://github.com/trashduty/injury.git
+cd injury
+pip install -r requirements.txt
+```
+
+Required packages:
+- beautifulsoup4 - HTML parsing
+- requests - HTTP requests
+- pandas - CSV data handling
 
 ## Quick Start
 
@@ -60,6 +77,60 @@ Or run the included main function:
 ```bash
 python news_aggregator.py
 ```
+
+### Running the Depth Chart Scraper
+
+The depth chart scraper extracts starter information from OurLads NCAA football depth charts and generates a CSV file with team, player, and position data.
+
+**Basic usage:**
+
+```bash
+python depth_chart_scraper.py
+```
+
+This will:
+- Scrape depth chart data from https://www.ourlads.com/ncaa-football-depth-charts/
+- Extract starter information (first player at each position)
+- Generate a CSV file at `data/starters.csv` with columns: team, player, position
+- Apply rate limiting (2 seconds between requests by default)
+
+**Advanced options:**
+
+```bash
+# Specify custom output location
+python depth_chart_scraper.py --output my_starters.csv
+
+# Adjust rate limiting delay (in seconds)
+python depth_chart_scraper.py --delay 3.0
+
+# Enable verbose logging
+python depth_chart_scraper.py --verbose
+```
+
+**Using in Python code:**
+
+```python
+from depth_chart_scraper import DepthChartScraper
+
+# Create scraper instance
+scraper = DepthChartScraper(rate_limit_delay=2.0)
+
+# Run the scraper
+scraper.run(output_path='data/starters.csv')
+
+# Or use individual methods
+starters = scraper.scrape_all_depth_charts()
+scraper.save_to_csv(starters, 'data/starters.csv')
+```
+
+**Output format:**
+
+The generated CSV file contains:
+- `team`: Team name
+- `player`: Player name
+- `position`: Position code (e.g., QB, RB, WR, etc.)
+
+This data can be used to filter injury reports to show only injuries for starting players.
 
 ### Running with Report Generation and Email Delivery
 
