@@ -1,138 +1,137 @@
 team,slug
-AAC,fcs-and-small-college-nfl-prospects
-Charlotte,army
-East Carolina,charlotte
-Florida Atlantic,east-carolina
-Memphis,florida-atlantic
-Navy,memphis
-North Texas,navy
-Rice,north-texas
-South Florida,rice
-Temple,south-florida
-Tulane,temple
-Tulsa,tulane
-UAB,tulsa
-UTSA,uab
-"freestar.config.enabled_slots.push({ placementName: 'ourlads-com_Extrapages_300x250_reusable', slotId: 'ourlads-com_Extrapages_300x250_reusable' });",utsa
-California,boston-college
-Clemson,california
-Duke,clemson
-Florida State,duke
-Georgia Tech,florida-state
-Louisville,georgia-tech
-Miami,louisville
-North Carolina,miami
-North Carolina State,north-carolina
-Pittsburgh,nc-state
-SMU,pittsburgh
-Stanford,smu
-Syracuse,stanford
-Virginia,syracuse
-Virginia Tech,virginia
-Wake Forest,virginia-tech
-Big 10,wake-forest
-Indiana,illinois
-Iowa,indiana
-Maryland,iowa
-Michigan,maryland
-Michigan State,michigan
-Minnesota,michigan-state
-Nebraska,minnesota
-Northwestern,nebraska
-Ohio State,northwestern
-Oregon,ohio-state
-Penn State,oregon
-Purdue,penn-state
-Rutgers,purdue
-UCLA,rutgers
-USC,ucla
-Washington,usc
-Wisconsin,washington
-"freestar.config.enabled_slots.push({ placementName: 'ourlads-com_Extrapages_300x250_reusable', slotId: 'ourlads-com_Extrapages_300x250_reusable2' });",wisconsin
-Arizona State,arizona
-Baylor,arizona-state
-BYU,baylor
-Central Florida,brigham-young
-Cincinnati,central-florida
-Colorado,cincinnati
-Houston,colorado
-Iowa State,houston
-Kansas,iowa-state
-Kansas State,kansas
-Oklahoma State,kansas-state
-TCU,oklahoma-state
-Texas Tech,tcu
-Utah,texas-tech
-West Virginia,utah
-Conference USA,west-virginia
-Florida International,delaware
-Jacksonville State,florida-international
-Kennesaw State,jacksonville-state
-Liberty,kennesaw-state
-Louisiana Tech,liberty
-Middle Tennessee,louisiana-tech
-Missouri State,middle-tennessee
-New Mexico State,missouri-state
-Sam Houston,new-mexico-state
-UTEP,sam-houston
-Western Kentucky,utep
-"freestar.config.enabled_slots.push({ placementName: 'ourlads-com_Extrapages_300x250_reusable', slotId: 'ourlads-com_Extrapages_300x250_reusable3' });",wku
-Notre Dame,connecticut
-MAC,notre-dame
-Ball State,akron
-Bowling Green,ball-state
-Buffalo,bowling-green
-Central Michigan,buffalo
-Eastern Michigan,central-michigan
-Kent State,eastern-michigan
-Massachusetts,kent-state
-Miami (Ohio),umass
-Northern Illinois,miami-university
-Ohio,northern-illinois
-Toledo,ohio
-Western Michigan,toledo
-"freestar.config.enabled_slots.push({ placementName: 'ourlads-com_Extrapages_300x250_reusable', slotId: 'ourlads-com_Extrapages_300x250_reusable4' });",western-michigan
-Boise State,air-force
-Colorado State,boise-state
-Fresno State,colorado-state
-Hawaii,fresno-state
-Nevada,hawaii
-New Mexico,nevada
-San Diego State,new-mexico
-San Jose State,san-diego-state
-UNLV,san-jose-state
-Utah State,unlv
-Wyoming,utah state
-PAC-12,wyoming
-Washington State,oregon-state
-SEC,washington-state
-Arkansas,alabama
-Auburn,arkansas
-Florida,auburn
-Georgia,florida
-Kentucky,georgia
-LSU,kentucky
-Mississippi,lsu
-Mississippi State,ole-miss
-Missouri,mississippi-state
-Oklahoma,missouri
-South Carolina,oklahoma
-Tennessee,south-carolina
-Texas,tennessee
-Texas A&M,texas
-Vanderbilt,texas-am
-Sun Belt,vanderbilt
-Arkansas State,appalacian-state
-Coastal Carolina,arkansas-state
-Georgia Southern,coastal-carolina
-Georgia State,georgia-southern
-James Madison,georgia-state
-Louisiana,james-madison
-Louisiana-Monroe,louisiana
-Marshall,louisiana-monroe
-Old Dominion,marshall
-South Alabama,old-dominion
-Southern Miss,south-alabama
-Texas State,southern-miss
-Troy,texas-state
-"freestar.config.enabled_slots.push({ placementName: ""ourlads-com_leaderboard_728_sponsorship"", slotId: ""ourlads-com_leaderboard_728_sponsorship5"" });",troy
+Army,army
+Charlotte,charlotte
+East Carolina,east-carolina
+Florida Atlantic,florida-atlantic
+Memphis,memphis
+Navy,navy
+North Texas,north-texas
+Rice,rice
+South Florida,south-florida
+Temple,temple
+Tulane,tulane
+Tulsa,tulsa
+UAB,uab
+UTSA,utsa
+Boston College,boston-college
+California,california
+Clemson,clemson
+Duke,duke
+Florida State,florida-state
+Georgia Tech,georgia-tech
+Louisville,louisville
+Miami,miami
+North Carolina,north-carolina
+North Carolina State,nc-state
+Pittsburgh,pittsburgh
+SMU,smu
+Stanford,stanford
+Syracuse,syracuse
+Virginia,virginia
+Virginia Tech,virginia-tech
+Wake Forest,wake-forest
+Illinois,illinois
+Indiana,indiana
+Iowa,iowa
+Maryland,maryland
+Michigan,michigan
+Michigan State,michigan-state
+Minnesota,minnesota
+Nebraska,nebraska
+Northwestern,northwestern
+Ohio State,ohio-state
+Oregon,oregon
+Penn State,penn-state
+Purdue,purdue
+Rutgers,rutgers
+UCLA,ucla
+USC,usc
+Washington,washington
+Wisconsin,wisconsin
+Arizona,arizona
+Arizona State,arizona-state
+Baylor,baylor
+BYU,brigham-young
+Central Florida,central-florida
+Cincinnati,cincinnati
+Colorado,colorado
+Houston,houston
+Iowa State,iowa-state
+Kansas,kansas
+Kansas State,kansas-state
+Oklahoma State,oklahoma-state
+TCU,tcu
+Texas Tech,texas-tech
+Utah,utah
+West Virginia,west-virginia
+Delaware,delaware
+Florida International,florida-international
+Jacksonville State,jacksonville-state
+Kennesaw State,kennesaw-state
+Liberty,liberty
+Louisiana Tech,louisiana-tech
+Middle Tennessee,middle-tennessee
+Missouri State,missouri-state
+New Mexico State,new-mexico-state
+Sam Houston,sam-houston
+UTEP,utep
+Western Kentucky,wku
+Connecticut,connecticut
+Notre Dame,notre-dame
+Akron,akron
+Ball State,ball-state
+Bowling Green,bowling-green
+Buffalo,buffalo
+Central Michigan,central-michigan
+Eastern Michigan,eastern-michigan
+Kent State,kent-state
+Massachusetts,umass
+Miami (Ohio),miami-university
+Northern Illinois,northern-illinois
+Ohio,ohio
+Toledo,toledo
+Western Michigan,western-michigan
+Air Force,air-force
+Boise State,boise-state
+Colorado State,colorado-state
+Fresno State,fresno-state
+Hawaii,hawaii
+Nevada,nevada
+New Mexico,new-mexico
+San Diego State,san-diego-state
+San Jose State,san-jose-state
+UNLV,unlv
+Utah State,utah state
+Wyoming,wyoming
+Oregon State,oregon-state
+Washington State,washington-state
+Alabama,alabama
+Arkansas,arkansas
+Auburn,auburn
+Florida,florida
+Georgia,georgia
+Kentucky,kentucky
+LSU,lsu
+Mississippi,ole-miss
+Mississippi State,mississippi-state
+Missouri,missouri
+Oklahoma,oklahoma
+South Carolina,south-carolina
+Tennessee,tennessee
+Texas,texas
+Texas A&M,texas-am
+Vanderbilt,vanderbilt
+Appalachian State,appalacian-state
+Arkansas State,arkansas-state
+Coastal Carolina,coastal-carolina
+Georgia Southern,georgia-southern
+Georgia State,georgia-state
+James Madison,james-madison
+Louisiana,louisiana
+Louisiana-Monroe,louisiana-monroe
+Marshall,marshall
+Old Dominion,old-dominion
+South Alabama,south-alabama
+Southern Miss,southern-miss
+Texas State,texas-state
+Troy,troy

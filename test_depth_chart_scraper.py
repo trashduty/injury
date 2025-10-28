@@ -42,8 +42,10 @@ class TestDepthChartParser(unittest.TestCase):
         html = '''
         <html>
         <body>
-            <a href='depth-chart.aspx?s=alabama&id=12345'>Alabama</a>
-            <a href='depth-chart.aspx?s=georgia&id=67890'>Georgia</a>
+            <div class='nfl-dc-mm-team-name'>Alabama Crimson Tide</div>
+            <a href='depth-chart.aspx?s=alabama&id=12345'>Depth Chart</a>
+            <div class='nfl-dc-mm-team-name'>Georgia Bulldogs</div>
+            <a href='depth-chart.aspx?s=georgia&id=67890'>Depth Chart</a>
         </body>
         </html>
         '''
@@ -53,6 +55,11 @@ class TestDepthChartParser(unittest.TestCase):
         team_slugs = [t['slug'] for t in parser.teams]
         self.assertIn('alabama', team_slugs)
         self.assertIn('georgia', team_slugs)
+        # Check that team names were extracted
+        team_names = [t['team'] for t in parser.teams]
+        self.assertIn('Alabama Crimson Tide', team_names)
+        self.assertIn('Georgia Bulldogs', team_names)
+
 
 
 

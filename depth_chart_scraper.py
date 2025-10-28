@@ -49,6 +49,7 @@ class DepthChartParser(HTMLParser):
         super().__init__()
         self.teams = []
         self.current_link = None
+        self.pending_team_name = None  # Buffer for team name waiting for its link
         self.in_team_name = False
         self.debug = debug
         self.tag_count = 0
@@ -73,6 +74,15 @@ class DepthChartParser(HTMLParser):
                 match = re.search(r's=([^&]+)', href)
                 if match:
                     self.current_link = match.group(1)
+                    # If we have a pending team name, pair it with this link
+                    if self.pending_team_name:
+                        self.teams.append({
+                            'team': self.pending_team_name,
+                            'slug': self.current_link
+                        })
+                        if self.debug:
+                            logger.debug(f"Added team: {self.pending_team_name} (slug: {self.current_link})")
+                        self.pending_team_name = None
                     if self.debug:
                         logger.debug(f"Found depth chart link for team: {self.current_link}")
         
@@ -91,35 +101,12 @@ class DepthChartParser(HTMLParser):
         
         self.text_count += 1
         
-        # If we're in a team name div and have a link, store the team
+        # If we're in a team name div, buffer the name for the next link
         if self.in_team_name and data:
-            team_name = data
-            # We may not have a link yet if the structure is different
-            # Store team info we found
-            if self.current_link:
-                self.teams.append({
-                    'team': team_name,
-                    'slug': self.current_link
-                })
-                if self.debug:
-                    logger.debug(f"Added team: {team_name} (slug: {self.current_link})")
-                self.current_link = None
+            self.pending_team_name = data
+            if self.debug:
+                logger.debug(f"Buffered team name: {data}")
             self.in_team_name = False
-        
-        # Also capture team names from links themselves
-        # Pattern: text inside <a> tags that have depth-chart.aspx links
-        elif self.current_link and len(data) > 2:
-            # Check if this looks like a team name (not just "Depth Chart")
-            if data not in ['Depth Chart', 'Roster', 'Schedule', 'NFL Players']:
-                # This might be a team name
-                if not any(t['slug'] == self.current_link for t in self.teams):
-                    self.teams.append({
-                        'team': data,
-                        'slug': self.current_link
-                    })
-                    if self.debug:
-                        logger.debug(f"Added team from link text: {data} (slug: {self.current_link})")
-                self.current_link = None
     
     def handle_endtag(self, tag):
         """Handle closing HTML tags."""
