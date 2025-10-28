@@ -39,22 +39,49 @@ SCRAPER_CONFIG = {
 
 
 class DepthChartParser(HTMLParser):
-    """HTML parser for NCAA football depth charts from Ourlads.com."""
+    """HTML parser for NCAA football depth charts from Ourlads.com.
     
-    def __init__(self):
+    This parser extracts team information from the main landing page which 
+    contains links to individual team depth charts.
+    """
+    
+    def __init__(self, debug=False):
         super().__init__()
-        self.depth_chart = []
-        self.current_team = None
-        self.current_position = None
-        self.in_starter_section = False
+        self.teams = []
+        self.current_link = None
+        self.in_team_name = False
+        self.debug = debug
+        self.tag_count = 0
+        self.text_count = 0
         
     def handle_starttag(self, tag, attrs):
         """Handle opening HTML tags."""
+        self.tag_count += 1
         attrs_dict = dict(attrs)
         
-        # Detect team sections
-        if tag in ['h2', 'h3', 'div'] and any('team' in str(v).lower() for k, v in attrs if k == 'class'):
-            self.current_team = None
+        # Debug: Log tag information periodically
+        if self.debug and self.tag_count % 1000 == 0:
+            logger.debug(f"Processed {self.tag_count} tags so far...")
+        
+        # Look for links to depth chart pages
+        # Pattern: <a href='depth-chart.aspx?s=team-name&id=12345'>
+        if tag == 'a' and 'href' in attrs_dict:
+            href = attrs_dict['href']
+            if 'depth-chart.aspx' in href and 's=' in href:
+                # Extract team slug from URL
+                import re
+                match = re.search(r's=([^&]+)', href)
+                if match:
+                    self.current_link = match.group(1)
+                    if self.debug:
+                        logger.debug(f"Found depth chart link for team: {self.current_link}")
+        
+        # Look for team names in div elements
+        if tag == 'div' and 'class' in attrs_dict:
+            if 'team-name' in attrs_dict['class'] or 'mm-team-name' in attrs_dict['class']:
+                self.in_team_name = True
+                if self.debug:
+                    logger.debug(f"Found team name div with class: {attrs_dict['class']}")
     
     def handle_data(self, data):
         """Handle text data within HTML tags."""
@@ -62,18 +89,42 @@ class DepthChartParser(HTMLParser):
         if not data:
             return
         
-        # Basic heuristic for parsing depth charts
-        # Position codes are typically 2-4 uppercase letters
-        if data.isupper() and 2 <= len(data) <= 4 and data.isalpha():
-            self.current_position = data
-        elif self.current_team and self.current_position:
-            # This is likely a player name
-            # Add to depth chart (as starter - first player listed)
-            self.depth_chart.append({
-                'team': self.current_team,
-                'player': data,
-                'position': self.current_position
-            })
+        self.text_count += 1
+        
+        # If we're in a team name div and have a link, store the team
+        if self.in_team_name and data:
+            team_name = data
+            # We may not have a link yet if the structure is different
+            # Store team info we found
+            if self.current_link:
+                self.teams.append({
+                    'team': team_name,
+                    'slug': self.current_link
+                })
+                if self.debug:
+                    logger.debug(f"Added team: {team_name} (slug: {self.current_link})")
+                self.current_link = None
+            self.in_team_name = False
+        
+        # Also capture team names from links themselves
+        # Pattern: text inside <a> tags that have depth-chart.aspx links
+        elif self.current_link and len(data) > 2:
+            # Check if this looks like a team name (not just "Depth Chart")
+            if data not in ['Depth Chart', 'Roster', 'Schedule', 'NFL Players']:
+                # This might be a team name
+                if not any(t['slug'] == self.current_link for t in self.teams):
+                    self.teams.append({
+                        'team': data,
+                        'slug': self.current_link
+                    })
+                    if self.debug:
+                        logger.debug(f"Added team from link text: {data} (slug: {self.current_link})")
+                self.current_link = None
+    
+    def handle_endtag(self, tag):
+        """Handle closing HTML tags."""
+        if tag == 'div':
+            self.in_team_name = False
 
 
 class DepthChartScraper:
@@ -248,15 +299,21 @@ class DepthChartScraper:
         logger.error("Please check your internet connection and try again later")
         return None
     
-    def scrape_depth_chart(self, url: str = None) -> List[Dict[str, Any]]:
+    def scrape_depth_chart(self, url: str = None, debug: bool = False) -> List[Dict[str, Any]]:
         """
         Scrape depth chart data from the NCAA football depth charts URL.
         
+        This scraper extracts team information from the main landing page,
+        which contains links to individual team depth charts. The actual
+        depth chart details (players and positions) are on separate pages
+        that use JavaScript to load data dynamically.
+        
         Args:
             url: Optional URL to scrape (must be in whitelist, defaults to ALLOWED_URL)
+            debug: Enable debug logging to show HTML parsing details
             
         Returns:
-            List of dictionaries containing team, player, and position data
+            List of dictionaries containing team information
         """
         if url is None:
             url = ALLOWED_URL
@@ -266,35 +323,87 @@ class DepthChartScraper:
         html_content = self.fetch_html(url)
         if not html_content:
             logger.error("Failed to fetch HTML content, cannot proceed with scraping")
+            logger.error("Parsing step failed at: HTML fetch")
             return []
         
+        # Log HTML structure information for debugging
+        if debug:
+            logger.debug("=== HTML Structure Analysis ===")
+            logger.debug(f"Total HTML size: {len(html_content)} bytes")
+            logger.debug(f"First 500 characters: {html_content[:500]}")
+            
+            # Count key HTML elements
+            import re
+            div_count = len(re.findall(r'<div', html_content, re.IGNORECASE))
+            a_count = len(re.findall(r'<a\s', html_content, re.IGNORECASE))
+            table_count = len(re.findall(r'<table', html_content, re.IGNORECASE))
+            
+            logger.debug(f"HTML contains: {div_count} divs, {a_count} links, {table_count} tables")
+            
+            # Check for depth chart related content
+            depth_chart_links = len(re.findall(r'depth-chart\.aspx', html_content, re.IGNORECASE))
+            logger.debug(f"Found {depth_chart_links} references to 'depth-chart.aspx'")
+        
         try:
-            parser = DepthChartParser()
+            logger.info("Starting HTML parsing with DepthChartParser...")
+            parser = DepthChartParser(debug=debug)
             parser.feed(html_content)
             
-            logger.info(f"Successfully parsed {len(parser.depth_chart)} depth chart entries")
+            logger.info(f"HTML parsing completed: processed {parser.tag_count} tags, {parser.text_count} text nodes")
+            logger.info(f"Successfully parsed {len(parser.teams)} team entries")
             
-            # Filter to only include starters (first player at each position per team)
-            starters = []
-            seen_positions = set()
+            # Validate parsed content
+            if len(parser.teams) == 0:
+                logger.error("Parsing step failed at: No teams extracted from HTML")
+                logger.error("The HTML structure may have changed or uses JavaScript to load data")
+                logger.error("Expected to find <a> tags with 'depth-chart.aspx' URLs")
+                
+                # Additional diagnostics
+                import re
+                depth_chart_links = re.findall(r'depth-chart\.aspx\?s=([^&"\']+)', html_content)
+                if depth_chart_links:
+                    logger.error(f"DIAGNOSTIC: Found {len(depth_chart_links)} depth chart links in HTML")
+                    logger.error(f"DIAGNOSTIC: Sample links: {depth_chart_links[:5]}")
+                    logger.error("DIAGNOSTIC: Parser failed to extract these links properly")
+                else:
+                    logger.error("DIAGNOSTIC: No depth chart links found in HTML at all")
+                    logger.error("DIAGNOSTIC: The website structure may have changed completely")
+                
+                return []
             
-            for entry in parser.depth_chart:
-                key = (entry['team'], entry['position'])
-                if key not in seen_positions:
-                    starters.append(entry)
-                    seen_positions.add(key)
+            # Remove duplicates based on team slug
+            seen_slugs = set()
+            unique_teams = []
+            for team in parser.teams:
+                if team['slug'] not in seen_slugs:
+                    unique_teams.append(team)
+                    seen_slugs.add(team['slug'])
             
-            logger.info(f"Extracted {len(starters)} starter positions")
-            return starters
+            logger.info(f"Extracted {len(unique_teams)} unique teams (removed {len(parser.teams) - len(unique_teams)} duplicates)")
+            
+            # Log sample of extracted data
+            if unique_teams:
+                logger.info(f"Sample teams extracted: {[t['team'] for t in unique_teams[:5]]}")
+            
+            # Validate team data structure
+            invalid_teams = [t for t in unique_teams if not t.get('team') or not t.get('slug')]
+            if invalid_teams:
+                logger.warning(f"Found {len(invalid_teams)} teams with missing data")
+                unique_teams = [t for t in unique_teams if t.get('team') and t.get('slug')]
+            
+            return unique_teams
             
         except Exception as e:
             logger.error(f"Error parsing depth chart data: {str(e)}")
+            logger.error(f"Parsing step failed at: Exception during HTML parsing - {type(e).__name__}")
             logger.error("The HTML structure may have changed or be malformed")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return []
     
     def export_to_csv(self, data: List[Dict[str, Any]], filename: str = 'depth_chart.csv') -> bool:
         """
-        Export depth chart data to CSV file.
+        Export depth chart data to CSV file with validation.
         
         Args:
             data: List of depth chart entries
@@ -303,19 +412,64 @@ class DepthChartScraper:
         Returns:
             True if export was successful, False otherwise
         """
+        # Validate data before export
         if not data:
             logger.warning("No data to export to CSV")
+            logger.warning("CSV generation skipped: empty data list")
+            return False
+        
+        if not isinstance(data, list):
+            logger.error(f"Invalid data type for CSV export: expected list, got {type(data).__name__}")
+            logger.error("CSV generation failed: data validation error")
+            return False
+        
+        # Validate data structure
+        logger.info("Validating data structure before CSV export...")
+        valid_entries = []
+        invalid_count = 0
+        
+        for i, entry in enumerate(data):
+            if not isinstance(entry, dict):
+                logger.warning(f"Entry {i} is not a dictionary, skipping")
+                invalid_count += 1
+                continue
+            
+            # Check for required fields (team and slug for team listings)
+            if 'team' not in entry:
+                logger.warning(f"Entry {i} missing 'team' field, skipping")
+                invalid_count += 1
+                continue
+            
+            valid_entries.append(entry)
+        
+        if invalid_count > 0:
+            logger.warning(f"Found {invalid_count} invalid entries, exporting {len(valid_entries)} valid entries")
+        
+        if not valid_entries:
+            logger.error("No valid entries to export after validation")
+            logger.error("CSV generation failed: all entries failed validation")
             return False
         
         try:
-            logger.info(f"Exporting {len(data)} entries to {filename}")
+            logger.info(f"Exporting {len(valid_entries)} entries to {filename}")
             
             with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-                fieldnames = ['team', 'player', 'position']
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                # Determine fieldnames based on actual data structure
+                # Team listings have 'team' and 'slug' fields
+                sample_entry = valid_entries[0]
+                if 'slug' in sample_entry:
+                    fieldnames = ['team', 'slug']
+                elif 'player' in sample_entry and 'position' in sample_entry:
+                    fieldnames = ['team', 'player', 'position']
+                else:
+                    # Fallback: use all keys from first entry
+                    fieldnames = list(sample_entry.keys())
+                
+                logger.info(f"CSV fields: {fieldnames}")
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
                 
                 writer.writeheader()
-                writer.writerows(data)
+                writer.writerows(valid_entries)
             
             logger.info(f"Successfully exported depth chart data to {filename}")
             return True
@@ -332,30 +486,54 @@ class DepthChartScraper:
 
 def main():
     """Main function to run the depth chart scraper."""
+    import sys
+    
+    # Check for debug flag
+    debug = '--debug' in sys.argv
+    
+    if debug:
+        # Enable debug logging
+        logging.getLogger().setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
+    
     logger.info("Starting NCAA Football Depth Chart Scraper")
     logger.info(f"Target URL: {ALLOWED_URL}")
+    if debug:
+        logger.info("Debug mode enabled")
     
     # Create scraper instance
     scraper = DepthChartScraper()
     
-    # Scrape depth chart data
-    depth_chart_data = scraper.scrape_depth_chart()
+    # Scrape depth chart data with debug option
+    depth_chart_data = scraper.scrape_depth_chart(debug=debug)
     
     if depth_chart_data:
+        # Show what was scraped
+        logger.info(f"Scraped data contains {len(depth_chart_data)} entries")
+        
         # Export to CSV
         success = scraper.export_to_csv(depth_chart_data)
         
         if success:
             logger.info("Depth chart scraping completed successfully")
-            print(f"\nSuccessfully scraped {len(depth_chart_data)} depth chart entries")
+            print(f"\nSuccessfully scraped {len(depth_chart_data)} team entries")
             print(f"Data exported to: depth_chart.csv")
+            print(f"\nNote: This list contains team information and links to individual depth charts.")
+            print(f"Individual team depth charts use JavaScript to load player data dynamically.")
+            if depth_chart_data:
+                print(f"\nSample teams: {', '.join([d['team'] for d in depth_chart_data[:5]])}")
         else:
             logger.error("Failed to export data to CSV")
             print("\nFailed to export data to CSV")
+            print("Data was scraped but could not be written to file")
     else:
         logger.error("No depth chart data was scraped")
         print("\nFailed to scrape depth chart data")
         print("Please check the logs for detailed error messages")
+        print("\nTroubleshooting tips:")
+        print("1. Run with --debug flag for more detailed logging: python depth_chart_scraper.py --debug")
+        print("2. Check your internet connection")
+        print("3. Verify the website structure hasn't changed")
 
 
 if __name__ == '__main__':

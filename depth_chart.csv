@@ -1,0 +1,138 @@
+team,slug
+AAC,fcs-and-small-college-nfl-prospects
+Charlotte,army
+East Carolina,charlotte
+Florida Atlantic,east-carolina
+Memphis,florida-atlantic
+Navy,memphis
+North Texas,navy
+Rice,north-texas
+South Florida,rice
+Temple,south-florida
+Tulane,temple
+Tulsa,tulane
+UAB,tulsa
+UTSA,uab
+"freestar.config.enabled_slots.push({ placementName: 'ourlads-com_Extrapages_300x250_reusable', slotId: 'ourlads-com_Extrapages_300x250_reusable' });",utsa
+California,boston-college
+Clemson,california
+Duke,clemson
+Florida State,duke
+Georgia Tech,florida-state
+Louisville,georgia-tech
+Miami,louisville
+North Carolina,miami
+North Carolina State,north-carolina
+Pittsburgh,nc-state
+SMU,pittsburgh
+Stanford,smu
+Syracuse,stanford
+Virginia,syracuse
+Virginia Tech,virginia
+Wake Forest,virginia-tech
+Big 10,wake-forest
+Indiana,illinois
+Iowa,indiana
+Maryland,iowa
+Michigan,maryland
+Michigan State,michigan
+Minnesota,michigan-state
+Nebraska,minnesota
+Northwestern,nebraska
+Ohio State,northwestern
+Oregon,ohio-state
+Penn State,oregon
+Purdue,penn-state
+Rutgers,purdue
+UCLA,rutgers
+USC,ucla
+Washington,usc
+Wisconsin,washington
+"freestar.config.enabled_slots.push({ placementName: 'ourlads-com_Extrapages_300x250_reusable', slotId: 'ourlads-com_Extrapages_300x250_reusable2' });",wisconsin
+Arizona State,arizona
+Baylor,arizona-state
+BYU,baylor
+Central Florida,brigham-young
+Cincinnati,central-florida
+Colorado,cincinnati
+Houston,colorado
+Iowa State,houston
+Kansas,iowa-state
+Kansas State,kansas
+Oklahoma State,kansas-state
+TCU,oklahoma-state
+Texas Tech,tcu
+Utah,texas-tech
+West Virginia,utah
+Conference USA,west-virginia
+Florida International,delaware
+Jacksonville State,florida-international
+Kennesaw State,jacksonville-state
+Liberty,kennesaw-state
+Louisiana Tech,liberty
+Middle Tennessee,louisiana-tech
+Missouri State,middle-tennessee
+New Mexico State,missouri-state
+Sam Houston,new-mexico-state
+UTEP,sam-houston
+Western Kentucky,utep
+"freestar.config.enabled_slots.push({ placementName: 'ourlads-com_Extrapages_300x250_reusable', slotId: 'ourlads-com_Extrapages_300x250_reusable3' });",wku
+Notre Dame,connecticut
+MAC,notre-dame
+Ball State,akron
+Bowling Green,ball-state
+Buffalo,bowling-green
+Central Michigan,buffalo
+Eastern Michigan,central-michigan
+Kent State,eastern-michigan
+Massachusetts,kent-state
+Miami (Ohio),umass
+Northern Illinois,miami-university
+Ohio,northern-illinois
+Toledo,ohio
+Western Michigan,toledo
+"freestar.config.enabled_slots.push({ placementName: 'ourlads-com_Extrapages_300x250_reusable', slotId: 'ourlads-com_Extrapages_300x250_reusable4' });",western-michigan
+Boise State,air-force
+Colorado State,boise-state
+Fresno State,colorado-state
+Hawaii,fresno-state
+Nevada,hawaii
+New Mexico,nevada
+San Diego State,new-mexico
+San Jose State,san-diego-state
+UNLV,san-jose-state
+Utah State,unlv
+Wyoming,utah state
+PAC-12,wyoming
+Washington State,oregon-state
+SEC,washington-state
+Arkansas,alabama
+Auburn,arkansas
+Florida,auburn
+Georgia,florida
+Kentucky,georgia
+LSU,kentucky
+Mississippi,lsu
+Mississippi State,ole-miss
+Missouri,mississippi-state
+Oklahoma,missouri
+South Carolina,oklahoma
+Tennessee,south-carolina
+Texas,tennessee
+Texas A&M,texas
+Vanderbilt,texas-am
+Sun Belt,vanderbilt
+Arkansas State,appalacian-state
+Coastal Carolina,arkansas-state
+Georgia Southern,coastal-carolina
+Georgia State,georgia-southern
+James Madison,georgia-state
+Louisiana,james-madison
+Louisiana-Monroe,louisiana
+Marshall,louisiana-monroe
+Old Dominion,marshall
+South Alabama,old-dominion
+Southern Miss,south-alabama
+Texas State,southern-miss
+Troy,texas-state
+"freestar.config.enabled_slots.push({ placementName: ""ourlads-com_leaderboard_728_sponsorship"", slotId: ""ourlads-com_leaderboard_728_sponsorship5"" });",troy
