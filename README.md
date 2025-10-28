@@ -1,11 +1,20 @@
 # News Aggregation System
 
-A robust news aggregation system with RSS feed support, email delivery, and dual-format reporting (Markdown and CSV). Designed to fetch, parse, and manage multiple RSS feeds with proper error handling, caching, and automated email notifications.
+A robust news aggregation system with RSS feed support, web scraping, depth chart parsing, email delivery, and dual-format reporting (Markdown and CSV). Designed to fetch, parse, and manage multiple news sources including RSS feeds and web-scraped injury reports with proper error handling, caching, and automated email notifications.
 
 ## Features
 
+- **Multiple News Sources**: 
+  - ESPN NCAAF RSS feed
+  - CBS Sports NCAAF RSS feed
+  - Custom RSS feeds
+  - Covers.com injury reports (web scraping)
+- **Depth Chart Integration**: Parse depth charts from Ourlads.com to enrich player data with positions
 - **RSS Feed Support**: Parse RSS 2.0 and Atom feed formats
+- **Web Scraping**: Scrape injury reports with rate limiting and error handling
+- **Enhanced CSV Reports**: Organized output with Team, Player, Position, News/Injury Update, Source, and Date
 - **Error Handling**: Comprehensive error handling with retry logic
+- **Rate Limiting**: Automatic rate limiting for web scraping to be respectful of source websites
 - **Caching**: Intelligent caching system to reduce unnecessary requests
 - **Priority-based Refresh**: Configure different refresh intervals based on feed priority
 - **Multiple Feed Support**: Manage multiple RSS feeds simultaneously
@@ -83,15 +92,30 @@ The system can generate reports in multiple formats:
 
 Markdown reports include:
 - Report metadata (date, total items, feeds processed)
+- Team name (when available)
+- Player name (when available)
+- Position (from depth chart when available)
 - Formatted news items with titles, links, sources, and descriptions
 - Proper markdown formatting for easy reading
 
 ### CSV Reports
 
-CSV reports include:
-- Structured data with columns: title, link, feed_name, pubDate, description, guid
-- Compatible with Excel, Google Sheets, and data analysis tools
-- Easy to import into databases
+CSV reports include organized columns ideal for injury tracking:
+- **Team**: Team name
+- **Player**: Player name
+- **Position**: Player position (from depth chart)
+- **Title**: News headline or injury update
+- **Feed Name**: Source of the information
+- **Date**: Publication date
+- **Description**: Full description or injury details
+- **Link**: URL to full article
+- **GUID**: Unique identifier
+
+The CSV format is compatible with Excel, Google Sheets, and data analysis tools, making it easy to:
+- Track player injuries over time
+- Filter by team or position
+- Import into databases for analysis
+- Share with coaching staff or analysts
 
 ### Using Report Generation Programmatically
 
@@ -191,7 +215,7 @@ else:
 
 ### Configuration
 
-The system is configured through `config.py`. The default configuration includes:
+The system is configured through `config.py`. The default configuration includes multiple news sources:
 
 ```python
 RSS_FEEDS = [
@@ -200,9 +224,83 @@ RSS_FEEDS = [
         'name': 'Custom RSS Feed',
         'enabled': True,
         'priority': 1
+    },
+    {
+        'url': 'https://www.espn.com/espn/rss/ncf/news',
+        'name': 'ESPN NCAAF',
+        'enabled': True,
+        'priority': 1
+    },
+    {
+        'url': 'https://www.cbssports.com/rss/collegefootball',
+        'name': 'CBS Sports NCAAF',
+        'enabled': True,
+        'priority': 1
     }
 ]
 ```
+
+## Web Scraping and Depth Charts
+
+### Injury Reports from Covers.com
+
+The system automatically scrapes injury reports from Covers.com when fetching news:
+
+```python
+from news_aggregator import RSSFeedHandler
+
+handler = RSSFeedHandler()
+# get_all_feeds() automatically includes scraped injury reports
+items = handler.get_all_feeds()
+```
+
+Injury reports include:
+- Team name
+- Player name
+- Position
+- Injury status
+- Publication date
+
+### Depth Chart Integration
+
+The system fetches and caches depth charts from Ourlads.com to enrich player data:
+
+```python
+from web_scraper import WebScraper
+
+scraper = WebScraper()
+
+# Fetch depth chart for all teams
+depth_chart = scraper.fetch_depth_chart()
+
+# Get a specific player's position
+position = scraper.get_player_position('John Doe', team='Alabama')
+print(f"Position: {position}")
+
+# Enrich news items with position data
+enriched_items = scraper.enrich_items_with_positions(items)
+```
+
+### Web Scraping Configuration
+
+Web scraping is configured with rate limiting and error handling:
+
+```python
+WEB_SCRAPING_CONFIG = {
+    'covers_injury_url': 'https://www.covers.com/sport/football/ncaaf/injuries',
+    'ourlads_depth_chart_url': 'https://www.ourlads.com/ncaa-football-depth-charts/',
+    'rate_limit_delay': 2,  # seconds between requests
+    'user_agent': 'NewsAggregator/1.0 (Educational Purpose)',
+    'timeout': 30,
+    'max_retries': 3,
+}
+```
+
+Rate limiting ensures respectful scraping:
+- Minimum 2 seconds between requests
+- Automatic retry with exponential backoff
+- Proper User-Agent header
+- Comprehensive error handling
 
 ## Managing RSS Feeds
 
@@ -374,12 +472,49 @@ Get items from a feed with caching support.
 - Returns: List of feed items
 
 **`get_all_feeds() -> List[Dict[str, Any]]`**
-Get items from all enabled feeds.
-- Returns: List of all feed items from enabled feeds
+Get items from all enabled feeds including web-scraped injury reports.
+- Returns: List of all feed items from enabled feeds plus injury reports from Covers.com
 
 **`get_feed_status() -> Dict[str, Any]`**
 Get status information for all feeds.
 - Returns: Dictionary with feed status information
+
+### WebScraper Class
+
+#### Methods
+
+**`__init__()`**
+Initialize the web scraper with rate limiting and caching support.
+
+**`fetch_html(url: str, timeout: int = None) -> Optional[str]`**
+Fetch HTML content from a URL with error handling and rate limiting.
+- Parameters:
+  - `url`: The URL to fetch
+  - `timeout`: Request timeout in seconds (optional)
+- Returns: HTML content as string, or None if fetch failed
+
+**`scrape_covers_injuries() -> List[Dict[str, Any]]`**
+Scrape injury reports from Covers.com.
+- Returns: List of injury report items with team, player, position, and status
+
+**`fetch_depth_chart(team: Optional[str] = None) -> Dict[str, Any]`**
+Fetch depth chart data from Ourlads.com with caching.
+- Parameters:
+  - `team`: Optional team name to filter
+- Returns: Dictionary mapping teams to positions to players
+
+**`get_player_position(player_name: str, team: Optional[str] = None) -> Optional[str]`**
+Get a player's position from the depth chart.
+- Parameters:
+  - `player_name`: Name of the player
+  - `team`: Optional team name to narrow search
+- Returns: Position string or None if not found
+
+**`enrich_items_with_positions(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]`**
+Enrich news items with position information from depth chart.
+- Parameters:
+  - `items`: List of news items
+- Returns: List of items enriched with position data
 
 ### Configuration Functions
 
@@ -401,12 +536,28 @@ Get all enabled RSS feeds.
 The system supports:
 - **RSS 2.0**: Standard RSS format with channel and item elements
 - **Atom**: Atom 1.0 syndication format
+- **Web Scraping**: HTML parsing for sites without RSS feeds
 
-Both formats are automatically detected and parsed appropriately.
+Both RSS formats are automatically detected and parsed appropriately. Web scraping includes:
+- HTML parsing with Python's built-in html.parser
+- Rate limiting to respect website resources
+- Automatic retry logic with error handling
+- Caching to reduce unnecessary requests
 
 ## Testing
 
-Run the test suite:
+Run the complete test suite:
+
+```bash
+# Run all tests
+python -m unittest discover -v
+
+# Or run specific test modules
+python -m unittest test_news_aggregator.py -v
+python -m unittest test_web_scraper.py -v
+```
+
+Run the test suite for the news aggregator:
 
 ```bash
 python -m unittest test_news_aggregator.py

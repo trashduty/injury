@@ -89,6 +89,18 @@ class ReportGenerator:
             for i, item in enumerate(items, 1):
                 f.write(f"### {i}. {item.get('title', 'Untitled')}\n\n")
                 
+                # Team name if available
+                if item.get('team'):
+                    f.write(f"**Team:** {item['team']}\n\n")
+                
+                # Player name if available
+                if item.get('player'):
+                    f.write(f"**Player:** {item['player']}\n\n")
+                
+                # Position if available
+                if item.get('position'):
+                    f.write(f"**Position:** {item['position']}\n\n")
+                
                 # Source/Feed name
                 if item.get('feed_name'):
                     f.write(f"**Source:** {item['feed_name']}\n\n")
@@ -130,8 +142,8 @@ class ReportGenerator:
         
         filepath = self._generate_filename('csv')
         
-        # Define CSV columns
-        fieldnames = ['title', 'link', 'feed_name', 'pubDate', 'description', 'guid']
+        # Define CSV columns with new fields for injury tracking
+        fieldnames = ['team', 'player', 'position', 'title', 'feed_name', 'pubDate', 'description', 'link', 'guid']
         
         with open(filepath, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
@@ -143,11 +155,14 @@ class ReportGenerator:
             for item in items:
                 # Prepare row with defaults for missing fields
                 row = {
+                    'team': item.get('team', ''),
+                    'player': item.get('player', ''),
+                    'position': item.get('position', ''),
                     'title': item.get('title', ''),
-                    'link': item.get('link', ''),
                     'feed_name': item.get('feed_name', ''),
                     'pubDate': item.get('pubDate', ''),
                     'description': item.get('description', ''),
+                    'link': item.get('link', ''),
                     'guid': item.get('guid', ''),
                 }
                 writer.writerow(row)
