@@ -103,6 +103,9 @@ class DepthChartParser(HTMLParser):
         
         # If we're in a team name div, buffer the name for the next link
         if self.in_team_name and data:
+            # Warn if we're overwriting a pending team name
+            if self.pending_team_name:
+                logger.warning(f"Overwriting pending team name '{self.pending_team_name}' with '{data}' - previous name was not paired with a link")
             self.pending_team_name = data
             if self.debug:
                 logger.debug(f"Buffered team name: {data}")
@@ -335,6 +338,10 @@ class DepthChartScraper:
             logger.info("Starting HTML parsing with DepthChartParser...")
             parser = DepthChartParser(debug=debug)
             parser.feed(html_content)
+            
+            # Check for unpaired team name
+            if parser.pending_team_name:
+                logger.warning(f"Unpaired team name at end of parsing: '{parser.pending_team_name}' - no corresponding link found")
             
             logger.info(f"HTML parsing completed: processed {parser.tag_count} tags, {parser.text_count} text nodes")
             logger.info(f"Successfully parsed {len(parser.teams)} team entries")
