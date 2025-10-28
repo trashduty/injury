@@ -26,15 +26,41 @@ class TestDepthChartParser(unittest.TestCase):
     def test_parser_initialization(self):
         """Test parser initializes correctly."""
         parser = DepthChartParser()
-        self.assertEqual(len(parser.depth_chart), 0)
-        self.assertIsNone(parser.current_team)
-        self.assertIsNone(parser.current_position)
+        self.assertEqual(len(parser.teams), 0)
+        self.assertIsNone(parser.current_link)
+        self.assertFalse(parser.in_team_name)
     
     def test_parse_empty_html(self):
         """Test parsing empty HTML."""
         parser = DepthChartParser()
         parser.feed('<html><body></body></html>')
-        self.assertEqual(len(parser.depth_chart), 0)
+        self.assertEqual(len(parser.teams), 0)
+    
+    def test_parse_team_links(self):
+        """Test parsing team depth chart links."""
+        parser = DepthChartParser()
+        html = '''
+        <html>
+        <body>
+            <div class='nfl-dc-mm-team-name'>Alabama Crimson Tide</div>
+            <a href='depth-chart.aspx?s=alabama&id=12345'>Depth Chart</a>
+            <div class='nfl-dc-mm-team-name'>Georgia Bulldogs</div>
+            <a href='depth-chart.aspx?s=georgia&id=67890'>Depth Chart</a>
+        </body>
+        </html>
+        '''
+        parser.feed(html)
+        self.assertGreater(len(parser.teams), 0)
+        # Check that teams were extracted
+        team_slugs = [t['slug'] for t in parser.teams]
+        self.assertIn('alabama', team_slugs)
+        self.assertIn('georgia', team_slugs)
+        # Check that team names were extracted
+        team_names = [t['team'] for t in parser.teams]
+        self.assertIn('Alabama Crimson Tide', team_names)
+        self.assertIn('Georgia Bulldogs', team_names)
+
+
 
 
 class TestDepthChartScraper(unittest.TestCase):
@@ -287,6 +313,83 @@ class TestDepthChartScraper(unittest.TestCase):
             if os.path.exists(temp_filename):
                 os.unlink(temp_filename)
     
+    def test_export_to_csv_with_team_data(self):
+        """Test CSV export with team data (new format)."""
+        test_data = [
+            {'team': 'Alabama', 'slug': 'alabama'},
+            {'team': 'Georgia', 'slug': 'georgia'}
+        ]
+        
+        # Use temporary file
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+            temp_filename = f.name
+        
+        try:
+            result = self.scraper.export_to_csv(test_data, temp_filename)
+            
+            self.assertTrue(result)
+            
+            # Verify CSV content
+            with open(temp_filename, 'r', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                rows = list(reader)
+                
+                self.assertEqual(len(rows), 2)
+                self.assertEqual(rows[0]['team'], 'Alabama')
+                self.assertEqual(rows[0]['slug'], 'alabama')
+                self.assertEqual(rows[1]['team'], 'Georgia')
+                self.assertEqual(rows[1]['slug'], 'georgia')
+        finally:
+            # Clean up
+            if os.path.exists(temp_filename):
+                os.unlink(temp_filename)
+    
+    def test_export_to_csv_validates_data(self):
+        """Test that CSV export validates data before writing."""
+        # Test with invalid data types
+        invalid_data = [
+            {'team': 'Alabama', 'slug': 'alabama'},
+            'not a dict',  # Invalid entry
+            {'team': 'Georgia', 'slug': 'georgia'},
+        ]
+        
+        # Use temporary file
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+            temp_filename = f.name
+        
+        try:
+            result = self.scraper.export_to_csv(invalid_data, temp_filename)
+            
+            # Should still succeed, but only write valid entries
+            self.assertTrue(result)
+            
+            # Verify only valid entries were written
+            with open(temp_filename, 'r', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                rows = list(reader)
+                
+                self.assertEqual(len(rows), 2)  # Only 2 valid entries
+                self.assertEqual(rows[0]['team'], 'Alabama')
+                self.assertEqual(rows[1]['team'], 'Georgia')
+        finally:
+            # Clean up
+            if os.path.exists(temp_filename):
+                os.unlink(temp_filename)
+    
+    def test_export_to_csv_rejects_all_invalid(self):
+        """Test that CSV export fails when all entries are invalid."""
+        # Test with all invalid data
+        invalid_data = [
+            'not a dict',
+            123,
+            None,
+        ]
+        
+        result = self.scraper.export_to_csv(invalid_data)
+        
+        # Should fail because no valid entries
+        self.assertFalse(result)
+    
     @patch('builtins.open', side_effect=IOError("Permission denied"))
     def test_export_to_csv_io_error(self, mock_open_func):
         """Test CSV export handles IO errors."""
@@ -297,6 +400,17 @@ class TestDepthChartScraper(unittest.TestCase):
         result = self.scraper.export_to_csv(test_data)
         
         self.assertFalse(result)
+    
+    @patch('depth_chart_scraper.DepthChartScraper.fetch_html')
+    def test_scrape_validates_parsed_content(self, mock_fetch):
+        """Test that scraping validates parsed content and provides error messages."""
+        # Simulate HTML with no depth chart links
+        mock_fetch.return_value = '<html><body><p>No depth charts here</p></body></html>'
+        
+        data = self.scraper.scrape_depth_chart()
+        
+        # Should return empty list and log appropriate errors
+        self.assertEqual(len(data), 0)
 
 
 class TestConfiguration(unittest.TestCase):
