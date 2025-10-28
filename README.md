@@ -10,6 +10,7 @@ A robust news aggregation system with RSS feed support, web scraping, depth char
   - Custom RSS feeds
   - Covers.com injury reports (web scraping)
 - **Depth Chart Integration**: Parse depth charts from Ourlads.com to enrich player data with positions
+- **Dedicated Depth Chart Scraper**: Standalone NCAA football depth chart scraper with URL whitelist security and connection verification
 - **RSS Feed Support**: Parse RSS 2.0 and Atom feed formats
 - **Web Scraping**: Scrape injury reports with rate limiting and error handling
 - **Enhanced CSV Reports**: Organized output with Team, Player, Position, News/Injury Update, Source, and Date
@@ -280,6 +281,71 @@ print(f"Position: {position}")
 # Enrich news items with position data
 enriched_items = scraper.enrich_items_with_positions(items)
 ```
+
+### Dedicated NCAA Football Depth Chart Scraper
+
+The system includes a dedicated scraper specifically for NCAA football depth charts from Ourlads.com. This scraper has enhanced security features including URL whitelisting and connection verification.
+
+#### Running the Depth Chart Scraper
+
+Run the scraper as a standalone script:
+
+```bash
+python depth_chart_scraper.py
+```
+
+This will:
+1. Verify connection to the Ourlads.com website
+2. Scrape NCAA football depth chart data (starters only)
+3. Export data to `depth_chart.csv` with columns: Team, Player, Position
+
+#### Using the Depth Chart Scraper Programmatically
+
+```python
+from depth_chart_scraper import DepthChartScraper
+
+# Create scraper instance
+scraper = DepthChartScraper()
+
+# Scrape depth chart data
+depth_chart_data = scraper.scrape_depth_chart()
+
+# Export to CSV
+scraper.export_to_csv(depth_chart_data, 'my_depth_chart.csv')
+```
+
+#### URL Whitelist Requirement
+
+**IMPORTANT**: The depth chart scraper enforces a strict URL whitelist for security. Only the following URL is allowed:
+
+- `https://www.ourlads.com/ncaa-football-depth-charts/`
+
+Any attempt to scrape from other URLs will be rejected with a clear error message. This ensures the scraper is only used for its intended purpose.
+
+#### Connection Verification
+
+Before attempting to scrape, the scraper performs connection verification:
+
+1. **DNS Resolution Check**: Verifies the domain can be resolved
+2. **Socket Connection Test**: Ensures the server is reachable
+3. **Timeout Detection**: Detects slow or unresponsive servers
+
+If connection verification fails, you'll receive detailed error messages:
+- DNS resolution failures
+- Connection timeouts
+- Connection refused errors
+- Firewall or network issues
+
+#### Error Handling
+
+The depth chart scraper provides clear error messages for common issues:
+
+- **404 Not Found**: The URL may have changed or be temporarily unavailable
+- **403 Forbidden**: The website may be blocking automated access
+- **Connection Timeout**: Server is slow or experiencing high traffic
+- **Network Errors**: Internet connectivity or firewall issues
+
+All errors are logged with actionable guidance to help resolve the issue.
 
 ### Web Scraping Configuration
 
